@@ -1,0 +1,5 @@
+# Bundler
+.bundle
+
+# OS X
+.DS_Store
