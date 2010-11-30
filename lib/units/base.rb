@@ -1,35 +1,45 @@
 require 'bigdecimal'
-require 'units/registration'
 
 module Units
   class Base
+    METRIC_MAP = {
+      :milli => Rational(1, 1_000),
+      :centi => Rational(1, 100),
+      :kilo  => 1_000
+    }
+
     class << self
       attr_accessor :pluralize
 
-      def register unit, &block
-        Units::Registration.new(unit, self, &block).register
+      def base name, options = {}
+        unit name, 1.0, options
       end
 
-      def metric! unit, *units
-        konfig = config
-        konfig[unit][:metric] = true
+      def unit *args
+        options = args.last.is_a?(Hash) ? args.pop : {}
+        name, conversion, other = args
 
-        { :milli => [Rational(1, 1_000), /m(?:illi)?/],
-          :centi => [Rational(1, 100),   /c(?:enti)?/],
-          :kilo  => [1_000,              /k(?:ilo)?/ ]
-        }.each_pair do |prefix, (prefix_factor, prefix_matcher)|
-          next unless units.empty? || units.include?(prefix)
-          sub_unit = :"#{prefix}#{unit}"
-          register sub_unit do
-            factor prefix_factor, unit
-            match /#{prefix_matcher}#{konfig[unit][:matcher]}/
+        if conversion.respond_to? :call
+          (options[:rules] ||= {})[other] = conversion
+        elsif other
+          options[:factor] = Rational rules[other][:factor], conversion
+        else
+          options[:factor] = conversion
+        end
+
+        rules[name] = options
+
+        if options[:metric]
+          METRIC_MAP.each_pair do |prefix, factor|
+            subname = :"#{prefix}#{name}"
+            unit subname, factor, name
+            rules[subname][:metric] = true
           end
-          konfig[sub_unit][:metric] = true
         end
       end
 
-      def config
-        Units.units[name]
+      def rules
+        Units.units[name] ||= {}
       end
 
       private
@@ -42,25 +52,18 @@ module Units
     attr_reader :amount
     attr_reader :unit
 
-    # FIXME.
-    attr_reader :pos
-
-    def initialize amount, unit = nil, options = {}
-      @amount = BigDecimal amount.to_s
-      @unit = unit
-
-      # FIXME.
-      @pos = options[:pos]
+    def initialize amount, unit = nil
+      @amount, @unit = amount, unit
     end
 
     def convert_to other_unit
       return dup if unit == other_unit
 
-      unless self.class.config.key? other_unit
+      unless self.class.rules.key? other_unit
         raise TypeError, "no such unit #{self.class.name}:#{other_unit}"
       end
 
-      if rules = self.class.config[unit][:rules]
+      if unit and rules = self.class.rules[unit][:rules]
         unless rules.key? other_unit
           raise TypeError, "can't convert to #{self.class.name}:#{other_unit}"
         end
@@ -76,11 +79,11 @@ module Units
     end
 
     def unit= unit
-      unless self.class.config.key? unit
+      unless self.class.rules.key? unit
         raise TypeError, "no such unit #{self.class.name}:#{unit}"
       end
 
-      @unit = unit and @amount *= factor
+      @unit = unit and @amount *= factor || 1
     end
 
     include Comparable
@@ -138,17 +141,17 @@ module Units
     end
 
     def metric?
-      self.class.config[unit][:metric] || false
+      unit and self.class.rules[unit][:metric] || false
     end
 
     def expand
-      rules = self.class.config.reject { |_, c| c[:factor].nil? }
+      rules = self.class.rules.reject { |_, r| r[:factor].nil? }
       return [self] if rules.empty?
 
       clone = self
       units = []
-      rules.sort_by { |_, c| c[:factor] }.each do |config|
-        clone = clone.convert_to config[0]
+      rules.sort_by { |_, r| r[:factor] }.each do |rule|
+        clone = clone.convert_to rule[0]
         amount = clone.amount.to_i
         units << clone and break if clone.metric? && amount > 0
         units << self.class.new(amount, clone.unit) if amount > 0
@@ -159,12 +162,12 @@ module Units
     end
 
     def normalize
-      rules = self.class.config.reject { |_, c| c[:factor].nil? }
+      rules = self.class.rules.reject { |_, r| r[:factor].nil? }
       return if rules.empty?
 
       clone = self
-      rules.sort_by { |_, c| c[:factor] }.each do |config|
-        clone = clone.convert_to config[0]
+      rules.sort_by { |_, r| r[:factor] }.each do |rules|
+        clone = clone.convert_to rules[0]
         amount = clone.amount
         return clone if (amount % 1).zero? || (clone.metric? && amount >= 1)
       end
@@ -183,6 +186,7 @@ module Units
     end
 
     def humanized_amount
+      return unless amount
       amount = coerced_amount
 
       if amount.is_a?(Rational) && amount.numerator > amount.denominator
@@ -221,7 +225,7 @@ module Units
 
     def factor
       return if instance_of? Base
-      self.class.config[unit][:factor] if self.class.config.key? unit
+      self.class.rules[unit][:factor] if self.class.rules.key? unit
     end
 
     def pluralize?
