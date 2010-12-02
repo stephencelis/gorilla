@@ -1,6 +1,7 @@
 # encoding: utf-8
-module Units
-  class Temperature < Base
+
+module Gorilla
+  class Temperature < Unit
     unit :celsius,    lambda { |t| Rational(9, 5) * (t + 32) }, :fahrenheit
     unit :fahrenheit, lambda { |t| Rational(5, 9) * (t - 32) }, :celsius
 

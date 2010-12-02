@@ -1,18 +1,38 @@
-require 'bigdecimal'
-
-module Units
-  class Base
+module Gorilla
+  # The base unit class from which all inherit.
+  class Unit
+    # Maps metric prefixes to scale.
+    #-
+    # TODO: Uncomment when Scanner is ready.
+    #+
     METRIC_MAP = {
-      :milli => Rational(1, 1_000),
+      # :yotta => 1_000_000_000_000_000_000_000_000,
+      # :zetta => 1_000_000_000_000_000_000_000,
+      # :exa   => 1_000_000_000_000_000_000,
+      # :peta  => 1_000_000_000_000_000,
+      # :tera  => 1_000_000_000_000,
+      # :giga  => 1_000_000_000,
+      # :mega  => 1_000_000,
+      :kilo  => 1_000,
+      # :hecto => 100,
+      # :deca  => 10,
+      # :deci  => Rational(1, 10),
       :centi => Rational(1, 100),
-      :kilo  => 1_000
+      :milli => Rational(1, 1_000),
+      # :micro => Rational(1, 1_000_000),
+      # :nano  => Rational(1, 1_000_000_000),
+      # :pico  => Rational(1, 1_000_000_000_000),
+      # :femto => Rational(1, 1_000_000_000_000_000),
+      # :atto  => Rational(1, 1_000_000_000_000_000_000),
+      # :zepto => Rational(1, 1_000_000_000_000_000_000_000),
+      # :yocto => Rational(1, 1_000_000_000_000_000_000_000_000)
     }
 
     class << self
       attr_accessor :pluralize
 
       def base name, options = {}
-        unit name, 1.0, options
+        unit name, Rational(1), options
       end
 
       def unit *args
@@ -24,7 +44,7 @@ module Units
         elsif other
           options[:factor] = Rational rules[other][:factor], conversion
         else
-          options[:factor] = conversion
+          options[:factor] = Rational conversion
         end
 
         rules[name] = options
@@ -39,7 +59,7 @@ module Units
       end
 
       def rules
-        Units.units[name] ||= {}
+        Gorilla.units[name] ||= {}
       end
 
       private
@@ -53,6 +73,10 @@ module Units
     attr_reader :unit
 
     def initialize amount, unit = nil
+      if instance_of?(Unit) && unit
+        raise TypeError, "no such unit #{self.class.name}:#{unit}"
+      end
+
       @amount, @unit = amount, unit
     end
 
@@ -224,7 +248,7 @@ module Units
     private
 
     def factor
-      return if instance_of? Base
+      return if instance_of? Unit
       self.class.rules[unit][:factor] if self.class.rules.key? unit
     end
 
@@ -232,7 +256,7 @@ module Units
       return false unless self.class.pluralize
 
       case abs = coerced_amount.abs
-      when Rational, BigDecimal
+      when Rational
         abs <= 0 || abs > 1
       when Numeric
         abs != 1
@@ -243,9 +267,9 @@ module Units
 
     def method_missing method_name, *args, &block
       if args.empty? && unit = method_name.to_s.sub!(/^to_/, '')
-        if Units.units.key? unit
+        if Gorilla.units.key? unit
           return convert_to unit
-        elsif Units.const_defined? :CoreExt
+        elsif Gorilla.const_defined? :CoreExt
           return convert_to 1.send(unit).unit rescue super
         end
       end

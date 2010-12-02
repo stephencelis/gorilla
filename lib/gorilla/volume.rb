@@ -1,10 +1,8 @@
-require 'bigdecimal'
-
-module Units
-  class Volume < Base
+module Gorilla
+  class Volume < Unit
     base :liter, :metric => true
 
-    unit :teaspoon,    BigDecimal('0.00492892159'), :liter
+    unit :teaspoon,    0.00492892159, :liter
     unit :tablespoon,  3, :teaspoon
     unit :fluid_ounce, 2, :tablespoon
     unit :cup,         8, :fluid_ounce

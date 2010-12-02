@@ -1,12 +1,12 @@
-module Units::CoreExt
+module Gorilla::CoreExt
   def unit
-    Units::Base.new self
+    Gorilla::Base.new self
   end
   alias units unit
 
-  Units.units.each_pair do |klass_name, configs|
+  Gorilla.units.each_pair do |klass_name, configs|
     configs.each_key do |unit|
-      klass = Units.const_get klass_name[/\w+$/]
+      klass = Gorilla.const_get klass_name[/\w+$/]
 
       define_method unit do
         klass.new self, unit
@@ -60,5 +60,5 @@ module Units::CoreExt
 end
 
 class Numeric
-  include Units::CoreExt
+  include Gorilla::CoreExt
 end

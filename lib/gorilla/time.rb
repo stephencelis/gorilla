@@ -1,5 +1,5 @@
-module Units
-  class Time < Base
+module Gorilla
+  class Time < Unit
     base :second, :metric => true
 
     unit :minute,     60, :second

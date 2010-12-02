@@ -1,9 +1,11 @@
-require 'units/base'
+require 'gorilla/unit'
 
-module Units
+module Gorilla
   @units = {}
 
   class << self
     attr_reader :units
   end
 end
+
+G = Gorilla

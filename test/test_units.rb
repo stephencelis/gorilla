@@ -1,14 +1,15 @@
-require 'units'
-require 'units/all'
+require 'gorilla'
+require 'gorilla/all'
+require 'gorilla/scanners'
 require 'minitest/autorun'
 
 class TestUnits < MiniTest::Unit::TestCase
   def test_scanning
     expected = [
-      Units::Weight.new(12, :pound),
-      Units::Weight.new(2, :ounce)
+      Gorilla::Weight.new(12, :pound),
+      Gorilla::Weight.new(2, :ounce)
     ]
 
-    assert_equal expected, Units.scan('12lbs, 2 oz')
+    assert_equal expected, Gorilla::WeightScanner.scan('12lbs, 2 oz')
   end
 end

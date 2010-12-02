@@ -1,4 +1,4 @@
-module Units
+module Gorilla
   module Version
     MAJOR   = 0
     MINOR   = 0
