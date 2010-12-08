@@ -1,3 +1,9 @@
+# RDoc
+doc
+
+# RubyGems
+*.gem
+
 # Bundler
 .bundle
 
