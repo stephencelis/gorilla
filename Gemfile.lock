@@ -1,40 +1,21 @@
 PATH
   remote: .
   specs:
-    units (0.0.1)
-      classifier
-      gsl
-      madeleine
+    gorilla (0.0.1)
 
 GEM
   remote: http://rubygems.org/
   specs:
-    autotest (4.4.5)
-    autotest-fsevent (0.2.3)
-      sys-uname
-    autotest-growl (0.2.6)
-    classifier (1.3.3)
-      fast-stemmer (>= 1.0.0)
-    fast-stemmer (1.0.0)
-    gsl (1.14.5)
-      narray (>= 0.5.9)
-    madeleine (0.7.3)
-    minitest (2.0.0)
-    narray (0.5.9.7)
-    sys-uname (0.8.4)
+    rdoctest (0.0.1)
+    scantron (0.0.1)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  autotest
-  autotest-fsevent
-  autotest-growl
-  classifier
-  gsl
-  madeleine
-  minitest
-  units!
+  gorilla!
+  rdoctest
+  scantron
 
 METADATA
   version: 1.0.6
