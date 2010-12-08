@@ -1,19 +1,19 @@
 # encoding: utf-8
+require 'scantron'
+require 'range_scanner'
+require 'number_scanner'
 
 module Gorilla
   # A {Scantron}[http://github.com/stephencelis/scantron] scanner class from
   # which all Gorilla::Scanner classes inherit.
   #
   # Your own Gorilla::Scanners will inherit the data assigned their
-  # Gorilla::Base definitions so that, for example, units defined as metric
+  # Gorilla::Unit definitions so that, for example, units defined as metric
   # will have additional scanner rules created for each prefix.
   #
   # For more information, see Gorilla::Scanner.rule.
   class Scanner < ::Scantron::Scanner
     # Maps metric prefixes to regular expressions used for parsing.
-    #-
-    # TODO: Finish.
-    #+
     METRIC_MAP = {
       # :yotta => /Y/,
       # :zetta => /Z/,
@@ -62,7 +62,7 @@ module Gorilla
     class << self
       # ==== Options
       #
-      # [<tt>:class_name</tt>]  The Gorilla::Base return class for the rule
+      # [<tt>:class_name</tt>]  The Gorilla::Unit return class for the rule
       #                         given. By default, it is inferred from the name
       #                         of the scanner, so that a "BogosityScanner"
       #                         would try instantiate matches as "Bogosity"
@@ -75,9 +75,9 @@ module Gorilla
       #
       # ==== Example
       #
-      # Here we define a metric unit:
+      # Here we define a metric unit and scanner rule:
       #
-      #   class Beauty < Gorilla::Base
+      #   class Beauty < Gorilla::Unit
       #     base :Helen, :metric => true
       #   end
       #
@@ -90,12 +90,17 @@ module Gorilla
       #   BeautyScanner.scan '1 milliHelen is required to launch the ship.'
       #   # => [(1 milliHelen)]
       #
+      #   BeautyScanner.scan '2 kiloHelens'
+      #   # => [(2 kiloHelens)]
+      #
       # The return class (Beauty) is inferred from the scanner's class name
       # (less "Scanner"), and the metric setting is taken from the matching
       # rule on that class, but both can be overridden or made explicit.
       #
-      #   rule :Helen, /[Hh](?:elen)?s?/, :class_name => 'Beauty',
-      #                                   :metric     => true
+      #   class BeautyScanner < Gorilla::Scanner
+      #     rule :Helen, /[Hh](?:elen)?s?/, :class_name => 'Beauty',
+      #                                     :metric     => true
+      #   end
       def rule unit, regexp, data = {}, &block
         if class_name = data.delete(:class_name)
           klass = constantize class_name
@@ -103,7 +108,7 @@ module Gorilla
           klass = constantize class_name rescue nil
         end
 
-        config = { :class_name => class_name || 'Base' }
+        config = { :class_name => class_name || 'Unit' }
         config.update klass.rules[unit] if klass && klass.rules[unit]
         config.update data
 
@@ -119,7 +124,18 @@ module Gorilla
       private
 
       def constantize class_name
-        Object.module_eval "::#{class_name}", __FILE__, __LINE__
+        names = class_name.split("::")
+        names.shift if names.first && names.first.empty?
+
+        constant = Object
+        names.each do |name|
+          constant = if constant.const_defined?(name)
+            constant.const_get name
+          else
+            constant.const_missing name
+          end
+        end
+        constant
       end
     end
   end

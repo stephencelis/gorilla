@@ -1,4 +1,6 @@
 # encoding: utf-8
+require 'gorilla/scanner'
+require 'gorilla/temperature'
 
 module Gorilla
   class TemperatureScanner < Scanner

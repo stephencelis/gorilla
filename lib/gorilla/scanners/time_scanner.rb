@@ -1,6 +1,9 @@
+require 'gorilla/scanner'
+require 'gorilla/time'
+
 module Gorilla
   class TimeScanner < Scanner
-    rule :second,     /[Ss](?:ec(?:ond)?s?)?|S(?:EC(?:OND)?S?)/, :metric => true
+    rule :second,     /[Ss](?:ec(?:ond)?s?)?|S(?:EC(?:OND)?S?)/
     rule :minute,     /[Mm](?:in(?:ute)?s?)|M(?:IN(?:UTE)?S?)/
     rule :hour,       /[Hh](?:(?:ou)?r)?s?|H(?:(?:OU)?R)?S?/
     rule :day,        /[Dd](?:ays?)?|D(?:AYS?)/

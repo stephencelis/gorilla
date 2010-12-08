@@ -1,10 +1,7 @@
-require 'rake/testtask'
+require 'rdoctest/task'
 
-desc 'Default: run units.'
-task :default => :test
-
-desc 'Run units.'
-Rake::TestTask.new :test do |t|
-  t.libs << 'test'
-  t.pattern = 'test/**/test_*.rb'
+Rdoctest::Task.new do |t|
+  t.ruby_opts << '-rgorilla/all -rgorilla/core_ext'
 end
+
+task :default => :doctest

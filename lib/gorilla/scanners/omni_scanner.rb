@@ -1,4 +1,9 @@
 # encoding: utf-8
+require 'gorilla/scanner'
+require 'gorilla/scanners/temperature_scanner'
+require 'gorilla/scanners/time_scanner'
+require 'gorilla/scanners/volume_scanner'
+require 'gorilla/scanners/weight_scanner'
 
 module Gorilla
   # An all-purpose units scanner combining the rules of TemperatureScanner,

@@ -1,6 +1,9 @@
+require 'gorilla/scanner'
+require 'gorilla/volume'
+
 module Gorilla
   class VolumeScanner < Scanner
-    rule :liter,       /[Ll](?:i?t(?:er|re?)|t|r)?s?/ # metric
+    rule :liter,       /[Ll](?:i?t(?:er|re?)|t|r)?s?/
     rule :teaspoon,    /(?:t|(?:[Tt](?:ea)?s(?:p(?:oo)?n?)?))s?/
     rule :tablespoon,  /(?:T|(?:[Tt](?:bl?s?p?|a?b(?:le?)?(?:s(?:p(?:oo)?n?)))))s?/
     rule :fluid_ounce, /(?:[Ff]l(?:uid|\.)? )?[Oo](?:unce|z)s?/

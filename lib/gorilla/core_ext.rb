@@ -1,6 +1,6 @@
 module Gorilla::CoreExt
   def unit
-    Gorilla::Base.new self
+    Gorilla::Unit.new self
   end
   alias units unit
 
@@ -15,48 +15,56 @@ module Gorilla::CoreExt
     end
   end
 
-  alias Celsius celsius
-  alias C celsius
-  alias Fahrenheit fahrenheit
-  alias F fahrenheit
+  if Gorilla.const_defined? :Temperature
+    alias Celsius celsius
+    alias C celsius
+    alias Fahrenheit fahrenheit
+    alias F fahrenheit
+  end
 
-  alias s second
-  alias sec second
-  alias ms millisecond
-  alias min minute
-  alias h hour
-  alias hr hour
-  alias d day
+  if Gorilla.const_defined? :Temperature
+    alias s second
+    alias sec second
+    alias ms millisecond
+    alias min minute
+    alias h hour
+    alias hr hour
+    alias d day
+  end
 
-  alias litre liter
-  alias l liter
-  alias L liter
-  alias millilitre milliliter
-  alias ml milliliter
-  alias mL milliliter
-  alias centilitre centiliter
-  alias cl centiliter
-  alias cL centiliter
-  alias t teaspoon
-  alias tsp teaspoon
-  alias T tablespoon
-  alias tbs tablespoon
-  alias tbsp tablespoon
-  alias fl_oz fluid_ounce
-  alias oz_fl fluid_ounce
-  alias c cup
-  alias cu cup
-  alias pt pint
-  alias qt quart
-  alias gal gallon
+  if Gorilla.const_defined? :Volume
+    alias litre liter
+    alias l liter
+    alias L liter
+    alias millilitre milliliter
+    alias ml milliliter
+    alias mL milliliter
+    alias centilitre centiliter
+    alias cl centiliter
+    alias cL centiliter
+    alias t teaspoon
+    alias tsp teaspoon
+    alias T tablespoon
+    alias tbs tablespoon
+    alias tbsp tablespoon
+    alias fl_oz fluid_ounce
+    alias oz_fl fluid_ounce
+    alias c cup
+    alias cu cup
+    alias pt pint
+    alias qt quart
+    alias gal gallon
+  end
 
-  alias g gram
-  alias kg kilogram
-  alias mg milligram
-  alias lb pound
-  alias lbs pounds
-  alias oz ounce
-  alias ozs ounces
+  if Gorilla.const_defined? :Weight
+    alias g gram
+    alias kg kilogram
+    alias mg milligram
+    alias lb pound
+    alias lbs pounds
+    alias oz ounce
+    alias ozs ounces
+  end
 end
 
 class Numeric
