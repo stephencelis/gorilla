@@ -3,6 +3,7 @@ module Gorilla
     MAJOR   = 0
     MINOR   = 0
     PATCH   = 1
-    VERSION = [MAJOR, MINOR, PATCH].compact.join '.'
+    BETA    = 'beta'
+    VERSION = [MAJOR, MINOR, PATCH, BETA].compact.join '.'
   end
 end

@@ -49,6 +49,19 @@ module Gorilla
         result = range || number
       end
 
+      if result
+        between = r.scanner.string[
+          result.scanner.pos, pre_match.length - result.scanner.pos
+        ]
+
+        if between =~ /\S/
+          result = nil
+        else
+          r.length = r.length + (r.offset - result.offset)
+          r.offset = result.offset
+        end
+      end
+
       amount = result.value if result
       case amount
       when Range
