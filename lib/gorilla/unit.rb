@@ -169,7 +169,7 @@ module Gorilla
     #    # => [(1 pound), (8 ounces)]
     #
     #    # The block provided here is also the default for Gorilla::Time.
-    #    Gorilla::Time.new(1000, :second) { |t
+    #    Gorilla::Time.new(1000, :second).expand { |t|
     #      !t.metric? && t.unit != :minute || t.unit == :second
     #    }
     #    # => [(16 minutes), (40 seconds)]
@@ -225,9 +225,15 @@ module Gorilla
       self
     end
 
+    def coerced_amount
+      amount = metric? ? self.amount.to_f : self.amount.to_r
+      amount = amount.to_f if amount.denominator > 100
+      amount = amount.to_i if amount.denominator == 1
+      amount
+    end
+
     def humanized_amount
-      return unless amount
-      amount = coerced_amount
+      return unless amount = coerced_amount
 
       if amount.is_a?(Rational) && amount.numerator > amount.denominator
         amount = "#{amount.floor} #{amount % 1}"
@@ -423,13 +429,6 @@ module Gorilla
         when Numeric  then abs != 1
         else               false
       end
-    end
-
-    def coerced_amount
-      amount = metric? ? self.amount.to_f : self.amount.to_r
-      amount = amount.to_f if amount.denominator > 100
-      amount = amount.to_i if amount.denominator == 1
-      amount
     end
 
     def method_missing method_name, *args, &block

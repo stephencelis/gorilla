@@ -1,7 +1,6 @@
 # encoding: utf-8
 require 'scantron'
-require 'range_scanner'
-require 'number_scanner'
+require 'amount_scanner'
 
 module Gorilla
   # A {Scantron}[http://github.com/stephencelis/scantron] scanner class from
@@ -38,18 +37,7 @@ module Gorilla
     }
 
     @default = lambda { |r|
-      pre_match = r.scanner.pre_match
-
-      range = RangeScanner.new(pre_match).perform.last
-      number = NumberScanner.new(pre_match).perform.last
-
-      if range && number
-        result = range.pos[1] >= number.pos[1] ? range : number
-      else
-        result = range || number
-      end
-
-      if result
+      if result = AmountScanner.new(r.scanner.pre_match).perform.last
         between = r.scanner.string[
           result.scanner.pos, pre_match.length - result.scanner.pos
         ]
