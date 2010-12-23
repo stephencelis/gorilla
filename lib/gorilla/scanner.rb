@@ -36,8 +36,10 @@ module Gorilla
       # :yocto => /y/
     }
 
-    @default = lambda { |r|
-      if result = AmountScanner.new(r.scanner.pre_match).perform.last
+    before_match do |r|
+      # Adjust for amounts before units.
+      pre_match = r.scanner.pre_match
+      if result = AmountScanner.new(pre_match).perform.last
         between = r.scanner.string[
           result.scanner.pos, pre_match.length - result.scanner.pos
         ]
@@ -48,17 +50,61 @@ module Gorilla
           r.length = r.length + (r.offset - result.offset)
           r.offset = result.offset
         end
+
+        amount = result.value if result
       end
 
-      amount = result.value if result
-      case amount
+      # Adjust for generic amounts.
+      unless amount
+        if match = pre_match =~ /\ban? *$/i
+          r.length = r.length + (r.offset - match)
+          r.offset = match
+          amount = 1
+        elsif match = pre_match =~ /\b(?:a )couple *$/i
+          r.length = r.length + (r.offset - match)
+          r.offset = match
+          amount = 2
+        end
+      end
+
+      # Adjust for trailing amounts ("...and a half").
+      if match = r.scanner.post_match.match(/^ and(?: an?)? (.+)/)
+        if r.scantron.class.parse(match[1]).nil?
+          if result = NumberScanner.new(match[1]).perform.first
+            if result.offset == 0
+              r.length = r.length + result.length + match.offset(1).first
+              amount += result.value
+            end
+          end
+        end
+      # Adjust for trailing ranges ("...or two").
+      elsif match = r.scanner.post_match.match(/^ or (.+)/)
+        if r.scantron.class.parse(match[1]).nil?
+          if result = NumberScanner.new(match[1]).perform.first
+            if result.offset == 0
+              r.length = r.length + result.length + match.offset(1).first
+              amount = amount..result.value
+            end
+          end
+        end
+      # Adjust for periods.
+      elsif r.scanner.post_match =~ /^\./
+        r.length += 1
+      end
+
+      r[:amount] = amount
+      r
+    end
+
+    after_match do |r|
+      case amount = r[:amount]
       when Range
         unit_class = constantize r.rule.data[:class_name]
         unit_class.new(amount.min, r.name)..unit_class.new(amount.max, r.name)
       else
         constantize(r.rule.data[:class_name]).new amount, r.name
       end
-    }
+    end
 
     class << self
       # ==== Options
@@ -113,11 +159,12 @@ module Gorilla
         config.update klass.rules[unit] if klass && klass.rules[unit]
         config.update data
 
-        super unit, /(?<=^|[\d ])#{regexp}\b/, config, &block
+        super unit, /(?<=^|[\d ])#{regexp}(?= |\b|$)/, config, &block
 
         if config[:metric]
           METRIC_MAP.each_pair do |pre, sub|
-            super :"#{pre}#{unit}", /\b#{sub}#{regexp}\b/, config, &block
+            super :"#{pre}#{unit}", /(?<=^|[\d ])#{sub}#{regexp}(?= |\b|$)/,
+              config, &block
           end
         end
       end
@@ -125,7 +172,7 @@ module Gorilla
       private
 
       def constantize class_name
-        names = class_name.split("::")
+        names = class_name.split '::'
         names.shift if names.first && names.first.empty?
 
         constant = Object
@@ -138,6 +185,39 @@ module Gorilla
         end
         constant
       end
+    end
+
+    def scan
+      results = perform
+      array   = []
+      range   = false
+
+      results.each.with_index do |result, index|
+        if range
+          range = false
+          next
+        end
+
+        if !result.value.is_a?(Range) and next_result = results[index + 1]
+          substring = string[
+            result.scanner.pos, next_result.offset - result.scanner.pos
+          ]
+
+          case substring
+          when /^ *(and|or|to) *$/
+            if $1 == 'and' && result.pre_match !~ /between $/
+              array << (result.value + next_result.value)
+            else
+              array << (result.value..next_result.value)
+            end
+            range = true and next
+          end
+        end
+
+        array << result.value
+      end
+
+      array
     end
   end
 end

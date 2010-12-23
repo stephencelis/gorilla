@@ -5,7 +5,7 @@ require 'gorilla/temperature'
 module Gorilla
   class TemperatureScanner < Scanner
     degrees = /°| ?deg(?:ree)?s? /
-    rule :celsius,    /#{degrees}?([Cc](?:elsius)?)|℃/
-    rule :fahrenheit, /#{degrees}?([Ff](?:ahrenheit)?)|℉/
+    rule :celsius,    /#{degrees}?(?:C|[Cc]elsius)|℃/
+    rule :fahrenheit, /#{degrees}?(?:F|[Ff]ahrenheit)|℉/
   end
 end

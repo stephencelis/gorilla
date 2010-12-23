@@ -269,6 +269,7 @@ module Gorilla
     end
 
     def == other
+      return amount == other if instance_of? Unit
       self.class == other.class && normalized_amount == other.normalized_amount
     end
 
