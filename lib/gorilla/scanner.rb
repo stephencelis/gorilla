@@ -1,6 +1,5 @@
 # encoding: utf-8
-require 'scantron'
-require 'amount_scanner'
+require 'gorilla/scantron_ext'
 
 module Gorilla
   # A {Scantron}[http://github.com/stephencelis/scantron] scanner class from
@@ -159,7 +158,7 @@ module Gorilla
         config.update klass.rules[unit] if klass && klass.rules[unit]
         config.update data
 
-        super unit, /(?<=^|[\d ])#{regexp}(?= |\b|$)/, config, &block
+        super unit, /(?<=^|[\d ])#{regexp}(?=[\d ]|\b|$)/, config, &block
 
         if config[:metric]
           METRIC_MAP.each_pair do |pre, sub|

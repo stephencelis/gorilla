@@ -3,6 +3,9 @@
 module Gorilla
   # The base unit class from which all inherit.
   class Unit
+    # Pluralize by default.
+    @pluralize = true
+
     # Maps metric prefixes to scale.
     METRIC_MAP = {
       :yotta => 1_000_000_000_000_000_000_000_000,
@@ -92,7 +95,7 @@ module Gorilla
       private
 
       def inherited klass
-        klass.pluralize = true
+        klass.pluralize = pluralize
       end
     end
 
@@ -117,7 +120,7 @@ module Gorilla
         raise ArgumentError, "unit can't be nil for #{self.class.name}"
       end
 
-      @amount, @unit = amount, unit
+      @amount, @unit = (amount.to_r if amount), unit
     end
 
     # Converts an instance to a new unit.
@@ -138,6 +141,7 @@ module Gorilla
         end
 
         amount = rules[other_unit].call normalized_amount
+        return self.class.new amount, other_unit
       else
         amount = normalized_amount
       end
@@ -226,6 +230,7 @@ module Gorilla
     end
 
     def coerced_amount
+      return unless self.amount
       amount = metric? ? self.amount.to_f : self.amount.to_r
       amount = amount.to_f if amount.denominator > 100
       amount = amount.to_i if amount.denominator == 1
@@ -424,6 +429,7 @@ module Gorilla
 
     def pluralize?
       return false unless self.class.pluralize
+      return true  unless coerced_amount
 
       case abs = coerced_amount.abs
         when Rational then abs <= 0 || abs > 1

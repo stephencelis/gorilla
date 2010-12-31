@@ -1,4 +1,3 @@
-$: << "#{ENV["CODEPATH"]}/scantron/lib" # FIXME.
 require 'scantron'
 require 'number_scanner'
 require 'range_scanner'

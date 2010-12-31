@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.date = "2010-12-01"
 
   s.name = "gorilla"
-  s.version = Gorilla::Version::VERSION
+  s.version = Gorilla::Version::VERSION.dup
   s.summary = "Big, strong, intelligent unit conversions."
   s.description = "A unit conversion library for good all kind.."
 
