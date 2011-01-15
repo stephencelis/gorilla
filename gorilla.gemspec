@@ -2,12 +2,12 @@ $LOAD_PATH.unshift File.expand_path(File.join(File.dirname(__FILE__), 'lib'))
 require 'gorilla/version'
 
 Gem::Specification.new do |s|
-  s.date = "2010-12-01"
+  s.date = "2011-01-15"
 
   s.name = "gorilla"
   s.version = Gorilla::Version::VERSION.dup
   s.summary = "Big, strong, intelligent unit conversions."
-  s.description = "A unit conversion library for good all kind.."
+  s.description = "A unit conversion and parsing library."
 
   s.files = Dir["README.rdoc", "Rakefile", "lib/**/*"]
   s.test_files = Dir["test/**/*"]
