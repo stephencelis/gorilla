@@ -108,4 +108,16 @@ LONGER
       end
     end
   end
+
+  def test_should_parse_iso8601
+    {
+      "P1Y2W3DT4H5M6.7S" =>
+        1.year + 2.weeks + 3.days + 4.hours + 5.minutes + 6.7.seconds,
+      "PT15M" => 15.minutes,
+      "PT1H30M" => 1.5.hours,
+      "P1DY3" => nil # Invalid.
+    }.each do |input, parsed|
+      assert_equal parsed, Gorilla::TimeScanner.parse(input), input
+    end
+  end
 end

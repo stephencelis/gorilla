@@ -14,7 +14,17 @@ module Gorilla
     rule :century,    /[Cc]entur(?:y|ies)|CENTUR(?:Y|IES)/
     rule :millennium, /[Mm]illeni(?:um|a)|MILLENI(?:UM|A)/
 
-    rule :delimited,  /\d{1,2}(?::\d{2}){1,2}/ do |r|
+    rule :iso8601, /\bP(\d+Y)?(\d+W)?(\d+D)?T?(\d+H)?(\d+M)?([\d.]+S)?\b/ do |r|
+      y = Time.new r.scanner[1].to_i, :year
+      w = Time.new r.scanner[2].to_i, :week
+      d = Time.new r.scanner[3].to_i, :day
+      h = Time.new r.scanner[4].to_i, :hour
+      m = Time.new r.scanner[5].to_i, :minute
+      s = Time.new r.scanner[6].to_f, :second
+      y + w + d + h + m + s
+    end
+
+    rule :delimited, /\d{1,2}(?::\d{2}){1,2}/ do |r|
       h, m, s = r.to_s.split ':'
       time  = Time.new(h, :hour) + Time.new(m, :minute)
       time += Time.new(s, :second) if s
