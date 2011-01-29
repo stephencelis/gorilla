@@ -96,6 +96,7 @@ class TimeScannerTest < Test::Unit::TestCase
       # "3 hours and 15" => [3.hours, 15.minutes],
       "3 1/2 hours" => [3.5.hours],
       "half day" => [0.5.days],
+      "another minute or two" => [1.minute..2.minutes],
       <<LONGER => [10.min, 8.min, 12.min, 22.min..25.min, 10.min]
 Turn the oven on to 400 degrees. Meanwhile, chop onions and fry till
 translucent, about 10 minutes. Add mushrooms and cook water out of them,

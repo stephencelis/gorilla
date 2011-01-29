@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
 
   s.name = "gorilla"
   s.version = Gorilla::Version::VERSION.dup
-  s.summary = "Big, strong, intelligent unit conversions."
+  s.summary = "Big, strong, intelligent, and gentle unit conversions."
   s.description = "A unit conversion and parsing library."
 
   s.files = Dir["README.rdoc", "Rakefile", "lib/**/*"]

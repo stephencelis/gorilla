@@ -54,4 +54,8 @@ class WeightScannerTest < Test::Unit::TestCase
       p pn
     ).each { |bad| assert_no_match regex, bad }
   end
+
+  def test_should_not_mix_ranges
+    assert_equal [10.oz, 150.g], Gorilla::WeightScanner.scan("10oz or 150g")
+  end
 end

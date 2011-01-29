@@ -39,6 +39,8 @@ module Gorilla
       # Adjust for amounts before units.
       pre_match = r.scanner.pre_match
       if result = AmountScanner.new(pre_match).perform.last
+        r[:delimiter] = result[:delimiter]
+
         between = r.scanner.string[
           result.scanner.pos, pre_match.length - result.scanner.pos
         ]
@@ -55,7 +57,7 @@ module Gorilla
 
       # Adjust for generic amounts.
       unless amount
-        if match = pre_match =~ /\ban? *$/i
+        if match = pre_match =~ /\ba(?:n(?:other)?)? *$/i
           r.length = r.length + (r.offset - match)
           r.offset = match
           amount = 1
@@ -206,10 +208,11 @@ module Gorilla
           when /^ *(and|or|to) *$/
             if $1 == 'and' && result.pre_match !~ /between $/
               array << (result.value + next_result.value)
-            else
+              range = true and next
+            elsif $1 != 'or' || result.value.unit == next_result.value.unit
               array << (result.value..next_result.value)
+              range = true and next
             end
-            range = true and next
           end
         end
 
