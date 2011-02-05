@@ -85,6 +85,7 @@ module Gorilla
             if result.offset == 0
               r.length = r.length + result.length + match.offset(1).first
               amount = amount..result.value
+              r[:delimiter] = ' or '
             end
           end
         end
@@ -160,7 +161,7 @@ module Gorilla
         config.update klass.rules[unit] if klass && klass.rules[unit]
         config.update data
 
-        super unit, /(?<=^|[\d ])#{regexp}(?=[\d ]|\b|$)/, config, &block
+        super unit, /(?<=^|[\d -])#{regexp}(?=[\d ]|\b|$)/, config, &block
 
         if config[:metric]
           METRIC_MAP.each_pair do |pre, sub|
