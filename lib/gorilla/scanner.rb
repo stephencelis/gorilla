@@ -173,6 +173,14 @@ module Gorilla
 
       private
 
+      def s
+        '(?:s|\(s\))'
+      end
+
+      def es
+        '(?:es|\(es\))'
+      end
+
       def constantize class_name
         names = class_name.split '::'
         names.shift if names.first && names.first.empty?

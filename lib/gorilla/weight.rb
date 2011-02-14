@@ -1,3 +1,5 @@
+require 'gorilla'
+
 module Gorilla
   class Weight < Unit
     base :gram, :metric => true

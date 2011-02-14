@@ -39,4 +39,8 @@ class TemperatureScannerTest < Test::Unit::TestCase
       f
     ).each { |bad| assert_no_match regex, bad }
   end
+
+  def test_should_parse
+    assert_equal [350.F], Gorilla::TemperatureScanner.scan('350 degrees.')
+  end
 end

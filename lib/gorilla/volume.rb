@@ -1,3 +1,5 @@
+require 'gorilla'
+
 module Gorilla
   class Volume < Unit
     base :liter, :metric => true

@@ -58,4 +58,9 @@ class WeightScannerTest < Test::Unit::TestCase
   def test_should_not_mix_ranges
     assert_equal [10.oz, 150.g], Gorilla::WeightScanner.scan("10oz or 150g")
   end
+
+  def test_should_fake_pluralize
+    assert_equal "21 grams",
+      Gorilla::WeightScanner.scrub("21 gram(s)") { |r| r.value }
+  end
 end

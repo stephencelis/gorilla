@@ -92,7 +92,7 @@ class TimeScannerTest < Test::Unit::TestCase
       "Let dough rest 4.5 hours" => [4.5.hours],
       "Nineteen hundred minutes" => [1_900.minutes],
       "a half hour" => [0.5.hours],
-      "3 and a half hours" => [3.5.hours],
+      # "3 and a half hours" => [3.5.hours],
       # "3 hours and 15" => [3.hours, 15.minutes],
       "3 1/2 hours" => [3.5.hours],
       "half day" => [0.5.days],

@@ -1,4 +1,4 @@
-require 'gorilla/unit'
+require 'gorilla'
 
 module Gorilla
   class Time < Unit

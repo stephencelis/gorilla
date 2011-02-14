@@ -1,5 +1,5 @@
 # encoding: utf-8
-require 'gorilla/unit'
+require 'gorilla'
 
 module Gorilla
   class Temperature < Unit

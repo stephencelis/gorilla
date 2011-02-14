@@ -1,16 +1,16 @@
-require 'gorilla/scanner'
 require 'gorilla/time'
+require 'gorilla/scanner'
 
 module Gorilla
   class TimeScanner < Scanner
-    rule :second,     /[Ss](?:ec(?:ond)?s?)?|S(?:EC(?:OND)?S?)/
-    rule :minute,     /[Mm](?:in(?:ute)?s?)?|M(?:IN(?:UTE)?S?)/
-    rule :hour,       /[Hh](?:(?:ou)?rs?)?|H(?:(?:OU)?RS?)?/
-    rule :day,        /[Dd](?:ays?)?|D(?:AYS?)/
-    rule :week,       /[Ww](?:ee)?ks?|W(?:EE)?KS?/
-    rule :month,      /[Mm](?:o(?:n(?:th))?s?)|M(?:O(?:N(?:TH))?S?)/
-    rule :year,       /[Yy](?:ea)?rs?|Y(?:EA)?RS?/
-    rule :decade,     /[Dd]ecades?|DECADES?/
+    rule :second,     /[Ss](?:ec(?:ond)?#{s}?)?|S(?:EC(?:OND)?#{s.upcase}?)/
+    rule :minute,     /[Mm](?:in(?:ute)?#{s}?)?|M(?:IN(?:UTE)?#{s.upcase}?)/
+    rule :hour,       /[Hh](?:(?:ou)?r#{s}?)?|H(?:(?:OU)?R#{s.upcase}?)?/
+    rule :day,        /[Dd](?:ay#{s}?)?|D(?:AY#{s.upcase}?)/
+    rule :week,       /[Ww](?:ee)?k#{s}?|W(?:EE)?K#{s.upcase}?/
+    rule :month,      /[Mm](?:o(?:n(?:th))?#{s}?)|M(?:O(?:N(?:TH))?#{s.upcase}?)/
+    rule :year,       /[Yy](?:ea)?r#{s}?|Y(?:EA)?R#{s.upcase}?/
+    rule :decade,     /[Dd]ecade#{s}?|DECADE#{s.upcase}?/
     rule :century,    /[Cc]entur(?:y|ies)|CENTUR(?:Y|IES)/
     rule :millennium, /[Mm]illeni(?:um|a)|MILLENI(?:UM|A)/
 

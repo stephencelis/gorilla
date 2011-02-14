@@ -3,8 +3,8 @@ require 'amount_scanner'
 
 class NumberScanner
   words = WORD_MAP.keys.map { |v| v.sub /y$/, 'y-?' } * '|'
-  rules[:human].regexp = \
-    %r{(?:\b(?:\d+ (?:an?d? )*)?(?:#{words}))(?: ?\b(?:#{words}|an?d?|\d+)\b ?)*}i
+  # rules[:human].regexp = \
+  #   %r{(?:\b(?:\d+ (?:an?d? )*)?(?:#{words}))(?: ?\b(?:#{words}|an?d?|\d+)\b ?)*}i
 
   def self.human_to_number words
     numbers = words.split(/\W+/).map { |w|
