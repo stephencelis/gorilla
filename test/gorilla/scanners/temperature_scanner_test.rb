@@ -14,7 +14,10 @@ class TemperatureScannerTest < Test::Unit::TestCase
       'Celsius',
       'celsius',
       '℃'
-    ].each { |unit| assert_match regex, unit }
+    ].each { |unit|
+      unit.force_encoding 'ASCII-8BIT' if RUBY_VERSION >= '1.9'
+      assert_match regex, unit
+    }
 
     %w(
       c
@@ -33,7 +36,10 @@ class TemperatureScannerTest < Test::Unit::TestCase
       'Fahrenheit',
       'fahrenheit',
       '℉'
-    ].each { |unit| assert_match regex, unit }
+    ].each { |unit|
+      unit.force_encoding 'ASCII-8BIT' if RUBY_VERSION >= '1.9'
+      assert_match regex, unit
+    }
 
     %w(
       f

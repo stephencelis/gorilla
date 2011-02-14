@@ -5,7 +5,16 @@ require 'gorilla/scanner'
 module Gorilla
   class TemperatureScanner < Scanner
     degrees = /°|[ -]?deg(?:ree)?#{s}?/
-    rule :celsius,    /(?:#{degrees} ?)?(?:C|[Cc]elsius)|℃/
-    rule :fahrenheit, /(?:#{degrees} ?)?(?:F|[Ff]ahrenheit)|℉|#{degrees}/
+
+    celsius    = "(?:#{degrees} ?)?(?:C|[Cc]elsius)|℃"
+    fahrenheit = "(?:#{degrees} ?)?(?:F|[Ff]ahrenheit)|℉|#{degrees}"
+
+    if RUBY_VERSION >= '1.9'
+      celsius.force_encoding 'ASCII-8BIT'
+      fahrenheit.force_encoding 'ASCII-8BIT'
+    end
+
+    rule :celsius,    Regexp.new(celsius)
+    rule :fahrenheit, Regexp.new(fahrenheit)
   end
 end
