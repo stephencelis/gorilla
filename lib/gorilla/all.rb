@@ -1,4 +1,5 @@
 require 'gorilla'
+require 'gorilla/length'
 require 'gorilla/temperature'
 require 'gorilla/time'
 require 'gorilla/volume'
