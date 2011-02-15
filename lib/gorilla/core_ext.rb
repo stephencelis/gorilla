@@ -11,7 +11,12 @@ module Gorilla::CoreExt
       define_method unit do
         klass.new self, unit
       end
-      alias_method "#{unit}s", unit if klass.pluralize
+
+      begin
+        plural = klass.new(nil, unit).humanized_unit
+        alias_method plural, unit if unit.to_s != plural
+      rescue
+      end
     end
   end
 

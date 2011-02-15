@@ -5,7 +5,7 @@ module Gorilla
     base :meter, :metric => true
 
     unit :inch, 2.54, :centimeter
-    unit :foot, 12, :inch
+    unit :foot, 12, :inch, :plural => :feet
     unit :yard, 3, :foot
     unit :mile, 5280, :foot
 

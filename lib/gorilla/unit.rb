@@ -1,11 +1,6 @@
-# require 'bigdecimal'
-
 module Gorilla
   # The base unit class from which all inherit.
   class Unit
-    # Pluralize by default.
-    @pluralize = true
-
     # Maps metric prefixes to scale.
     METRIC_MAP = {
       :yotta => 1_000_000_000_000_000_000_000_000,
@@ -33,9 +28,6 @@ module Gorilla
     class << self
       # The base unit of the class.
       attr_accessor :base_unit
-
-      # Whether or not to pluralize a unit.
-      attr_accessor :pluralize
 
       # Defines the base unit of the class.
       #
@@ -90,12 +82,6 @@ module Gorilla
       # Returns the hash of rules for the current class.
       def rules
         Gorilla.units[name] ||= {}
-      end
-
-      private
-
-      def inherited klass
-        klass.pluralize = pluralize
       end
     end
 
@@ -254,7 +240,7 @@ module Gorilla
     def humanized_unit
       return unless unit
       humanized = unit.to_s.gsub '_', ' '
-      humanized << (humanized.end_with?('s') ? 'es' : 's') if pluralize?
+      humanized = pluralize humanized if pluralize?
       humanized
     end
 
@@ -428,7 +414,6 @@ module Gorilla
     end
 
     def pluralize?
-      return false unless self.class.pluralize
       return true  unless coerced_amount
 
       case abs = coerced_amount.abs
@@ -436,6 +421,18 @@ module Gorilla
         when Numeric  then abs != 1
         else               false
       end
+    end
+
+    def pluralize string
+      return string.pluralize if string.respond_to? :pluralize
+      return rules[:plural] || string if rules.key? :plural
+
+      ending = string =~ /(s|ch)$/ ? 'es' : 's'
+      string + ending
+    end
+
+    def rules
+      self.class.rules[unit] if unit
     end
 
     def method_missing method_name, *args, &block
