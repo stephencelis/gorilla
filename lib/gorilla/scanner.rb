@@ -84,7 +84,7 @@ module Gorilla
           if result = NumberScanner.new(match[1]).perform.first
             if result.offset == 0
               r.length = r.length + result.length + match.offset(1).first
-              amount = amount..result.value
+              amount = (amount || 1)..result.value
               r[:delimiter] = ' or '
             end
           end
