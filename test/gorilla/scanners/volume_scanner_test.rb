@@ -4,7 +4,7 @@ class VolumeScannerTest < Test::Unit::TestCase
   def test_should_parse_cups
     regex = Gorilla::VolumeScanner.rules[:cup].regexp
     units = %w(
-      c cp cu cup
+      8c cp cup
     )
 
     units.each do |unit|
@@ -144,5 +144,9 @@ class VolumeScannerTest < Test::Unit::TestCase
     %w(
       T
     ).each { |bad| assert_no_match regex, bad }
+  end
+
+  def test_should_parse_ranges
+    assert_equal 1, Gorilla::VolumeScanner.new("1/2 cup to a cup").perform.size
   end
 end

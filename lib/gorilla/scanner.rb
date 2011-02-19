@@ -36,76 +36,94 @@ module Gorilla
     }
 
     before_match do |r|
-      # Adjust for amounts before units.
-      pre_match = r.scanner.pre_match
-      if result = AmountScanner.new(pre_match).perform.last
-        r[:delimiter] = result[:delimiter]
+      unit_class = constantize r.rule.data[:class_name]
 
-        between = r.scanner.string[
-          result.scanner.pos, pre_match.length - result.scanner.pos
-        ]
+      if unit_class.rules.key? r.name
+        # Adjust for amounts before units.
+        pre_match = r.scanner.pre_match
+        if result = AmountScanner.new(pre_match).perform.last
+          r[:delimiter] = result[:delimiter]
 
-        if between =~ /\S/
-          result = nil
-        else
-          r.length = r.length + (r.offset - result.offset)
-          r.offset = result.offset
+          between = r.scanner.string[
+            result.scanner.pos, pre_match.length - result.scanner.pos
+          ]
+
+          if between =~ /\S/
+            result = nil
+          else
+            r.length = r.length + (r.offset - result.offset)
+            r.offset = result.offset
+          end
+
+          amount = result.value if result
         end
 
-        amount = result.value if result
-      end
-
-      # Adjust for generic amounts.
-      unless amount
-        if match = pre_match =~ /\ba(?:n(?:other)?)? *$/i
-          r.length = r.length + (r.offset - match)
-          r.offset = match
-          amount = 1
-        elsif match = pre_match =~ /\b(?:a )couple *$/i
-          r.length = r.length + (r.offset - match)
-          r.offset = match
-          amount = 2
-        end
-      end
-
-      # Adjust for trailing amounts ("...and a half").
-      if match = r.scanner.post_match.match(/^ and(?: an?)? (.+)/)
-        if r.scantron.class.parse(match[1]).nil?
-          if result = NumberScanner.new(match[1]).perform.first
-            if result.offset == 0
-              r.length = r.length + result.length + match.offset(1).first
-              amount += result.value
-            end
+        # Adjust for generic amounts.
+        unless amount
+          if match = pre_match =~ /\ba(?:n(?:other)?)? *$/i
+            r.length = r.length + (r.offset - match)
+            r.offset = match
+            amount = 1
+          elsif match = pre_match =~ /\b(?:a )couple *$/i
+            r.length = r.length + (r.offset - match)
+            r.offset = match
+            amount = 2
           end
         end
-      # Adjust for trailing ranges ("...or two").
-      elsif match = r.scanner.post_match.match(/^ or (.+)/)
-        if r.scantron.class.parse(match[1]).nil?
-          if result = NumberScanner.new(match[1]).perform.first
-            if result.offset == 0
-              r.length = r.length + result.length + match.offset(1).first
-              amount = (amount || 1)..result.value
-              r[:delimiter] = ' or '
+
+        amount = case amount
+        when Numeric, nil
+          unit_class.new amount, r.name
+        when Range
+          unit_class.new(amount.min, r.name)..unit_class.new(amount.max, r.name)
+        end
+
+        # Adjust for trailing amounts ("...and a half").
+        if match = r.scanner.post_match.match(/^ and(?: an?)? (.+)/)
+          result = [
+            r.scantron.class.new(match[1]).perform.first,
+            NumberScanner.new(match[1]).perform.first
+          ].compact.find { |trailing| trailing.offset == 0 }
+
+          if result
+            r.length = r.length + result.length + match.offset(1).first
+            value = result.value
+            value = unit_class.new(value, r.name) if value.is_a? Numeric
+            amount += value
+          end
+        # Adjust for trailing ranges ("...or two").
+        elsif match = r.scanner.post_match.match(/^ (or|to) (.+)/)
+          result = [
+            r.scantron.class.new(match[2]).perform.first,
+            NumberScanner.new(match[2]).perform.first
+          ].compact.find { |trailing| trailing.offset == 0 }
+
+          if result && amount.is_a?(Gorilla::Unit)
+            value = result.value
+            value = unit_class.new value, r.name if value.is_a? Numeric
+
+            if amount.unit == value.unit || match[1] == 'to'
+              r[:delimiter] = match[1]
+              r.length = r.length + result.length + match.offset(2).first
+              value = result.value
+              value = unit_class.new(value, r.name) if value.is_a? Numeric
+              amount = unit_class.new(1, r.name) if amount.amount.nil?
+              amount = amount..value
             end
           end
+        # Adjust for periods.
+        elsif r.scanner.post_match =~ /^\./
+          r.length += 1
         end
-      # Adjust for periods.
-      elsif r.scanner.post_match =~ /^\./
-        r.length += 1
+
+        r[:amount] = amount
       end
 
-      r[:amount] = amount
       r
     end
 
     after_match do |r|
-      case amount = r[:amount]
-      when Range
-        unit_class = constantize r.rule.data[:class_name]
-        unit_class.new(amount.min, r.name)..unit_class.new(amount.max, r.name)
-      else
-        constantize(r.rule.data[:class_name]).new amount, r.name
-      end
+      r[:amount]
     end
 
     class << self
@@ -197,38 +215,38 @@ module Gorilla
       end
     end
 
-    def scan
-      results = perform
-      array   = []
-      range   = false
+    # def scan
+    #   results = perform
+    #   array   = []
+    #   range   = false
 
-      results.each.with_index do |result, index|
-        if range
-          range = false
-          next
-        end
+    #   results.each.with_index do |result, index|
+    #     if range
+    #       range = false
+    #       next
+    #     end
 
-        if !result.value.is_a?(Range) and next_result = results[index + 1]
-          substring = string[
-            result.scanner.pos, next_result.offset - result.scanner.pos
-          ]
+    #     if !result.value.is_a?(Range) and next_result = results[index + 1]
+    #       substring = string[
+    #         result.scanner.pos, next_result.offset - result.scanner.pos
+    #       ]
 
-          case substring
-          when /^ *(and|or|to) *$/
-            if $1 == 'and' && result.pre_match !~ /between $/
-              array << (result.value + next_result.value)
-              range = true and next
-            elsif $1 != 'or' || result.value.unit == next_result.value.unit
-              array << (result.value..next_result.value)
-              range = true and next
-            end
-          end
-        end
+    #       case substring
+    #       when /^ *(and|or|to) *$/
+    #         if $1 == 'and' && result.pre_match !~ /between $/
+    #           array << (result.value + next_result.value)
+    #           range = true and next
+    #         elsif $1 != 'or' || result.value.unit == next_result.value.unit
+    #           array << (result.value..next_result.value)
+    #           range = true and next
+    #         end
+    #       end
+    #     end
 
-        array << result.value
-      end
+    #     array << result.value
+    #   end
 
-      array
-    end
+    #   array
+    # end
   end
 end

@@ -40,7 +40,7 @@ class WeightScannerTest < Test::Unit::TestCase
   def test_should_parse_pounds
     regex = Gorilla::WeightScanner.rules[:pound].regexp
     units = %w(
-      lb pd pnd pound #
+      lb pd pnd pound 8#
     )
 
     units.each do |unit|
