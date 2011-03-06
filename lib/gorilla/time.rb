@@ -4,16 +4,16 @@ module Gorilla
   class Time < Unit
     base :second, :metric => true
 
-    unit :minute,     60, :second
-    unit :hour,       60, :minute
-    unit :day,        24, :hour
-    unit :week,        7, :day
-    unit :fortnight,  14, :day
-    unit :month,      30, :day
-    unit :year,       52, :week
-    unit :decade,     10, :year
-    unit :century,    10, :decade
-    unit :millennium, 10, :century
+    unit :minute,        60, :second
+    unit :hour,          60, :minute
+    unit :day,           24, :hour
+    unit :week,           7, :day
+    unit :fortnight,     14, :day
+    unit :month,         30, :day
+    unit :year,          52, :week
+    unit :decade,        10, :year
+    unit :century,      100, :year
+    unit :millennium, 1_000, :year
 
     # Expands in favor of common units first. This behavior can be overridden
     # by providing a block, and negated if the block returns +true+.
