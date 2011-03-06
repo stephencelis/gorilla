@@ -49,7 +49,7 @@ module Gorilla
             result.scanner.pos, pre_match.length - result.scanner.pos
           ]
 
-          if between !~ /^ *$|^ (additional|extra|more) $/
+          if between !~ /\A *\Z|\A (additional|extra|more) \Z/
             result = nil
           else
             r.length = r.length + (r.offset - result.offset)
