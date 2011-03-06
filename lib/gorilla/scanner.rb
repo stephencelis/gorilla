@@ -1,5 +1,6 @@
 # encoding: utf-8
-require 'gorilla/scantron_ext'
+require 'scantron'
+require 'amount_scanner'
 
 module Gorilla
   # A {Scantron}[http://github.com/stephencelis/scantron] scanner class from
@@ -48,7 +49,7 @@ module Gorilla
             result.scanner.pos, pre_match.length - result.scanner.pos
           ]
 
-          if between =~ /\S/
+          if between !~ /^ *$|^ (additional|extra|more) $/
             result = nil
           else
             r.length = r.length + (r.offset - result.offset)

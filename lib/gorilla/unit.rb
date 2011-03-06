@@ -197,8 +197,8 @@ module Gorilla
       rules = rules_for_options options
       return if rules.empty?
 
-      rules.sort_by { |_, r| r[:factor] }.each do |rules|
-        clone = convert_to rules[0]
+      rules.sort_by { |_, r| r[:factor] }.each do |r|
+        clone = convert_to r[0]
         block_given? and case yield clone
           when true then return clone when false then next
         end
@@ -233,7 +233,7 @@ module Gorilla
       end
 
       amount = amount.split '.'
-      amount[0].gsub! /(?!\.)(\d)(?=(\d{3})+(?!\d))/, '\1,'
+      amount[0].gsub!(/(?!\.)(\d)(?=(\d{3})+(?!\d))/, '\1,')
       amount.join '.'
     end
 
@@ -362,8 +362,8 @@ module Gorilla
       amount && amount.real?
     end
 
-    def round digits
-      amount.round digits
+    def round precision = 0
+      amount.round precision
     end
 
     def to_f
