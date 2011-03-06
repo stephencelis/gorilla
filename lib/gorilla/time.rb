@@ -8,14 +8,15 @@ module Gorilla
     unit :hour,       60, :minute
     unit :day,        24, :hour
     unit :week,        7, :day
+    unit :fortnight,  14, :day
     unit :month,      30, :day
     unit :year,       52, :week
     unit :decade,     10, :year
     unit :century,    10, :decade
     unit :millennium, 10, :century
 
-    # Expands in favor of non-metric units first. This behavior can be
-    # overridden by providing a block, and negated if the block returns +true+.
+    # Expands in favor of common units first. This behavior can be overridden
+    # by providing a block, and negated if the block returns +true+.
     #
     # ==== Example
     #
@@ -26,7 +27,9 @@ module Gorilla
     #   time.expand(:metric => true) { true }
     #   # => [(1 kilosecond)]
     def expand options = {}, &block
-      block ||= lambda { |t| !t.metric? || t.unit == :second }
+      block ||= lambda { |t|
+        [:second, :minute, :hour, :day, :week, :year].include? t.unit
+      }
       super options, &block
     end
 
