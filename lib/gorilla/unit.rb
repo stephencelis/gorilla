@@ -152,6 +152,13 @@ module Gorilla
       new
     end
 
+    def convert_to! other_unit
+      return if unit == other_unit
+      converted = convert_to other_unit
+      @amount, @unit = converted.amount, converted.unit
+    end
+    alias unit= convert_to!
+
     # Returns whether a unit was defined as metric.
     #
     # ==== Example
