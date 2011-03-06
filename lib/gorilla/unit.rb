@@ -238,11 +238,11 @@ module Gorilla
     end
 
     def coerced_amount
-      return unless self.amount
-      amount = metric? ? self.amount.to_f : self.amount.to_r
-      amount = amount.to_f if amount.denominator > 100
-      amount = amount.to_i if amount.denominator == 1
-      amount
+      return unless amount
+      coerced = metric? ? amount.to_f : amount.to_r
+      coerced = coerced.to_f if coerced.denominator > 100
+      coerced = coerced.to_i if coerced.denominator == 1
+      coerced
     end
 
     def humanized_amount
