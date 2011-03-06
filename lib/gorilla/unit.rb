@@ -83,6 +83,21 @@ module Gorilla
       def rules
         Gorilla.units[name] ||= {}
       end
+
+      # Class method version of Gorilla::Unit#normalize, to handle, e.g.,
+      # Enumerable, Numeric, and Range objects.
+      def normalize input, &block
+        case input
+        when Range
+          normalize(input.min, &block)..normalize(input.max, &block)
+        when Enumerable
+          input.map { |unit| normalize unit, &block }
+        when Numeric
+          normalize Unit.new(input), &block
+        else # Unit, etc.
+          input.normalize(&block)
+        end
+      end
     end
 
     # The unit amount (can be +nil+).
