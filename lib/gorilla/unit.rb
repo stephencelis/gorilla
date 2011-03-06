@@ -116,9 +116,9 @@ module Gorilla
     #   Gorilla::Time.new 1, :minute # => (1 minute)
     def initialize amount, unit = self.class.base_unit
       if unit && self.class.rules[unit].nil?
-        raise TypeError, "no such unit #{self.class.name}:#{unit}"
+        raise TypeError, "no such unit #{self.class}:#{unit}"
       elsif unit.nil? && !instance_of?(Unit)
-        raise ArgumentError, "unit can't be nil for #{self.class.name}"
+        raise ArgumentError, "unit can't be nil for #{self.class}"
       end
 
       @amount, @unit = (amount.to_r if amount), unit
@@ -133,7 +133,7 @@ module Gorilla
       return dup if unit == other_unit
 
       unless self.class.rules.key? other_unit
-        raise TypeError, "no such unit #{self.class.name}:#{other_unit}"
+        raise TypeError, "no such unit #{self.class}:#{other_unit}"
       end
 
       if unit and rules = self.class.rules[unit][:rules]
