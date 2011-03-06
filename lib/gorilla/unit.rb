@@ -195,7 +195,7 @@ module Gorilla
     #   # => (2.1 decagrams)
     def normalize options = {}
       rules = rules_for_options options
-      return if rules.empty?
+      return self if rules.empty?
 
       rules.sort_by { |_, r| r[:factor] }.each do |r|
         clone = convert_to r[0]
