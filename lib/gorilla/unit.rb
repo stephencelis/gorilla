@@ -61,7 +61,7 @@ module Gorilla
         name, conversion, other = args
 
         if conversion.respond_to? :call
-          (options[:rules] ||= {})[other] = conversion
+          (options[:rules] ||= {})[other || base_unit] = conversion
         elsif other
           options[:factor] = Rational rules[other][:factor], conversion
         else
@@ -77,6 +77,23 @@ module Gorilla
             rules[subname][:metric] = true
           end
         end
+      end
+
+      def follow_rules amount, unit, other_unit
+        unless followable = rules[unit][:rules]
+          raise TypeError, "can't convert to #{self}:#{other_unit}"
+        end
+
+        if followable.key? other_unit
+          return followable[other_unit].call amount
+        end
+
+        followable.each_pair do |key, value|
+          amount = follow_rules value.call(amount), key, other_unit
+          return amount if amount
+        end
+
+        nil
       end
 
       # Returns the hash of rules for the current class.
@@ -136,12 +153,8 @@ module Gorilla
         raise TypeError, "no such unit #{self.class}:#{other_unit}"
       end
 
-      if unit and rules = self.class.rules[unit][:rules]
-        unless rules.key? other_unit
-          raise TypeError, "can't convert to #{self.class.name}:#{other_unit}"
-        end
-
-        amount = rules[other_unit].call normalized_amount
+      if self.class.rules[unit][:rules]
+        amount = self.class.follow_rules normalized_amount, unit, other_unit
         return self.class.new amount, other_unit
       else
         amount = normalized_amount
