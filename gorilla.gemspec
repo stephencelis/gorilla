@@ -12,8 +12,8 @@ Gem::Specification.new do |s|
   s.files = Dir["README.rdoc", "Rakefile", "lib/**/*"]
   s.test_files = Dir["test/**/*"]
 
-  s.add_development_dependency "rdoctest"
-  s.add_development_dependency "scantron"
+  s.add_dependency "scantron", "~> 0.0.1.beta"
+  s.add_development_dependency "rdoctest", "~> 0.0.1"
 
   s.extra_rdoc_files = %w(README.rdoc)
   s.has_rdoc = true
