@@ -28,8 +28,8 @@ Unit conversion, formatting, and parsing.
   # => (2 hours)
 
   require 'gorilla/time_scanner'
-  Gorilla::TimeScanner.parse "One and a half hours ago"
-  # => (1 1/2 hours)
+  Gorilla::TimeScanner.scan "One and a half hours ago"
+  # => [(1 1/2 hours)]
 
   Gorilla::TimeScanner.scrub("One and a half hours ago") do |match|
     "<span title='#{match.iso8601}'>#{match}</span>"
